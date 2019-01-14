@@ -10,6 +10,7 @@ This is the PyTorch implementation of my project "Semi-Supervised Video Semantic
 ```shell
 pip install -r requirements.txt
 ```
+Some of the dependencies (like `pytorch`) might need to be installed with conda.
 
 **Optical Flow**
 
