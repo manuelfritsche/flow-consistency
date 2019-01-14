@@ -1,0 +1,36 @@
+model:
+    arch: fcn8s
+data:
+    dataset: cityscapes
+    train_split: train
+    val_split: val
+    img_rows: 512
+    img_cols: 1024
+    frac_img: 0.01 # fraction of the labeled train images used
+    get_flow: True
+    discard_flow_bottom: True
+    path: /path/to/cityscapes/
+training:
+    train_iters: 300000
+    batch_size_lbl: 2
+    batch_size_flow: 2
+    val_interval: 1000
+    n_workers: 2
+    print_interval: 50
+    optimizer:
+        name: 'sgd'
+        lr: 1.0e-10
+        weight_decay: 0.0005
+        momentum: 0.99
+    loss:
+        name: 'cross_flow'
+        size_average: False
+        flow_weight: 10.0
+        max_shift: 2
+        use_label_and_flow: False
+    frequency_weighting: False
+    lr_schedule:
+    resume:
+    reset_optimizer: False
+    logdir: 'f1/fcn8s+fcl'
+    tasks: ['input', 'output', 'ground_truth', 'flow'] # for visualize.py
