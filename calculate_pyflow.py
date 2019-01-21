@@ -30,7 +30,7 @@ def optical_flow(loader, viz, cont):
 
     for index in range(n_images):
         print("Estimating flow " + str(index+1) + " / " + str(n_images))
-        images, _ = loader.__getitem__(index)
+        images, _, _ = loader.__getitem__(index)
         img_path = loader.files[loader.split][index].rstrip()
         flow_path = re.sub('.png$', '.npy', img_path)
         flow_path = re.sub('leftImg8bit', 'flow', flow_path)
