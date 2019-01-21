@@ -1,6 +1,6 @@
-## Semi-Supervised Video Semantic Segmentation
+## Semi-Supervised Learning of Semantic Segmentation from Video
 
-This is the PyTorch implementation of my project "Semi-Supervised Video Semantic Segmentation".
+This is the PyTorch implementation of my project "Semi-Supervised Learning of Semantic Segmentation from Video".
 
 
 ### Installation
