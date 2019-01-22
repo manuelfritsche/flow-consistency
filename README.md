@@ -1,6 +1,7 @@
 ## Semi-Supervised Learning of Semantic Segmentation from Video
 
 This is the PyTorch implementation of my project "Semi-Supervised Learning of Semantic Segmentation from Video".
+The project was supervised by Yuhua Chen and Stamatios Georgoulis.
 
 
 ### Installation
@@ -26,6 +27,8 @@ Make sure to save the repository in the main folder.
     - `leftImg8bit`
     - `leftImg8bit_sequence`
 
+### Pre-trained Models
+Our pre-trained models can be found [here](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints.tar.gz)
 
 ### Usage
 
