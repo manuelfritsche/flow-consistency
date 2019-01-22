@@ -41,7 +41,7 @@ Alternatively, the individual models be downloaded from the following links:
 
 ### Usage
 
-**To precompute the optical flow:**
+**To pre-compute the optical flow:**
 
 ```shell
 python calculate_pyflow.py --config [CONFIG] 
