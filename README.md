@@ -28,7 +28,16 @@ Make sure to save the repository in the main folder.
     - `leftImg8bit_sequence`
 
 ### Pre-trained Models
-Our pre-trained models can be found [here](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints.tar.gz)
+We provide [pre-trained models](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints.tar.gz)
+with and without Flow Consistency Loss (FCL) where different fractions of the annotated data were used for training.
+
+Alternatively, the individual models be downloaded from the following links:
+
+| | | | | |
+|---:|:---:|:---:|:---:|:---:
+| FCN-8s|[100%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_100.pkl)| [50%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_50.pkl)|    [10%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_10.pkl) |    [1%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_1.pkl)|
+| +FCL|[100%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_100.pkl)| [50%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_50.pkl)| [10%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_10.pkl)| [1%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_1.pkl)
+| | | | | |
 
 ### Usage
 
@@ -74,4 +83,3 @@ python visualize.py --config [CONFIG]  --model_path [MODEL_PATH]
 
 ### Acknowledgements
 This code is based on [pytorch-semseg](https://github.com/meetshah1995/pytorch-semseg)
-
