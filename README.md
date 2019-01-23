@@ -4,6 +4,7 @@ This is the PyTorch implementation of my project "Semi-Supervised Learning of Se
 The project was supervised by Yuhua Chen and Stamatios Georgoulis.
 
 **Abstract**
+
 Training semantic segmentation models typically requires a large amount of pixel-wise annotations. Collecting
 these annotations is a laborious and expensive process. On the other hand, unlabeled videos can be
 collected at a much lower cost and contain rich information, such as how objects move.
