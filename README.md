@@ -1,4 +1,4 @@
-# Semi-Supervised Learning of Semantic Segmentation from Video
+## Semi-Supervised Learning of Semantic Segmentation from Video
 
 This is the PyTorch implementation of my project "Semi-Supervised Learning of Semantic Segmentation from Video".
 The project was supervised by Yuhua Chen and Stamatios Georgoulis.
