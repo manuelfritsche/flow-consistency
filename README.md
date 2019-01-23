@@ -3,6 +3,23 @@
 This is the PyTorch implementation of my project "Semi-Supervised Learning of Semantic Segmentation from Video".
 The project was supervised by Yuhua Chen and Stamatios Georgoulis.
 
+**Abstract**
+Training semantic segmentation models typically requires a large amount of pixel-wise annotations. Collecting
+these annotations is a laborious and expensive process. On the other hand, unlabeled videos can be
+collected at a much lower cost and contain rich information, such as how objects move.
+This thesis aims to leverage such information as an additional source of supervision. We investigate the
+problem in a semi-supervised setting, where only a small number of frames are annotated, while a large
+number of unlabeled frames are provided. We observe that pixels corresponding to the same object should
+have similar velocity. Motivated by this observation, we introduce a regularization loss, which uses the
+optical flow between two frames. It is designed to penalize inconsistencies between the optical flow and
+the prediction from the semantic segmentation model. This loss does not require any ground truth labels
+and can utilize the temporal information in unlabeled videos. In addition, the semantic segmentation is also
+supervised by annotated data through a commonly used cross entropy term.
+We evaluate our method on the Cityscapes dataset and compare it to a baseline that only uses cross
+entropy loss. Experiments are made with different amounts of annotated images, where we achieve significant
+performance gains over the baseline when using additional unlabeled data. The results demonstrate the
+effectiveness of the proposed method in cases where annotated data is limited.
+
 
 ### Installation
 
