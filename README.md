@@ -1,9 +1,9 @@
-## Semi-Supervised Learning of Semantic Segmentation from Video
+# Semi-Supervised Learning of Semantic Segmentation from Video
 
 This is the PyTorch implementation of my project "Semi-Supervised Learning of Semantic Segmentation from Video".
 The project was supervised by Yuhua Chen and Stamatios Georgoulis.
 
-**Abstract**
+## Abstract
 
 Training semantic segmentation models typically requires a large amount of pixel-wise annotations. Collecting
 these annotations is a laborious and expensive process. On the other hand, unlabeled videos can be
@@ -22,19 +22,22 @@ performance gains over the baseline when using additional unlabeled data. The re
 effectiveness of the proposed method in cases where annotated data is limited.
 
 
-### Installation
+## Installation
 
 
-**Python Requirements**
+### Python Requirements
+
 ```shell
 pip install -r requirements.txt
 ```
 Some of the dependencies (like `pytorch`) might need to be installed with conda.
 
-**Optical Flow**
+
+### Optical Flow
 
 Follow the steps in [Pyflow](https://github.com/pathak22/pyflow) to install the optical flow.
 Make sure to save the repository in the main folder.
+
 
 ### Data
 
@@ -44,6 +47,7 @@ Make sure to save the repository in the main folder.
     - `gtFine`
     - `leftImg8bit`
     - `leftImg8bit_sequence`
+
 
 ### Pre-trained Models
 We provide [pre-trained models](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints.tar.gz)
@@ -57,9 +61,10 @@ Alternatively, the individual models be downloaded from the following links:
 | +FCL|[100%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_100.pkl)| [50%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_50.pkl)| [10%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_10.pkl)| [1%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_1.pkl)
 | | | | | |
 
-### Usage
 
-**To pre-compute the optical flow:**
+## Usage
+
+### To pre-compute the optical flow:
 
 ```shell
 python calculate_pyflow.py --config [CONFIG] 
@@ -69,7 +74,7 @@ This file only affects the images that are used.
 All provided configuration files will yield the same results.
 
 
-**To train the model:**
+### To train the model:
 
 ```shell
 python train.py --config [CONFIG] 
@@ -80,7 +85,8 @@ python train.py --config [CONFIG]
  The rest of the data will be used as unlabeled data for Flow Consistency Loss.
 
 
-**To validate the model :**
+### To validate the model:
+
 ```shell
 usage: validate.py --config [CONFIG] --model_path [MODEL_PATH] [--eval_flip]
 ```
