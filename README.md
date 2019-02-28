@@ -93,7 +93,7 @@ usage: validate.py --config [CONFIG] --model_path [MODEL_PATH] [--eval_flip]
 **To visualize the output of the model:**
 
 ```shell
-python visualize.py --config [CONFIG]  --model_path [MODEL_PATH]
+python visualize.py --config [CONFIG] --model_path [MODEL_PATH]
 ```
  * `--config`: Config file to be used (.yml file)
  * `--model_path`: Path to the saved model (.pkl file)
