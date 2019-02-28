@@ -10,50 +10,33 @@ import time
 import re
 import cv2
 import os
+import torch
 from semseg.loader import get_loader
-sys.path.insert(0, 'pyflow')  # modify/remove this line if necessary
-import pyflow
-
-
-# Flow Options:
-alpha = 0.012
-ratio = 0.75
-minWidth = 20
-nOuterFPIterations = 7
-nInnerFPIterations = 1
-nSORIterations = 30
-colType = 0  # 0 or default:RGB, 1:GRAY (but pass gray image with shape (h,w,1))
 
 
 def optical_flow(loader, viz, cont):
     n_images = loader.__len__()
 
     for index in range(n_images):
-        print("Estimating flow " + str(index+1) + " / " + str(n_images))
+        print("Estimating flow " + str(index+1) + " / " + str(n_images), end="\r")
         images, _, _ = loader.__getitem__(index)
         img_path = loader.files[loader.split][index].rstrip()
-        flow_path = re.sub('.png$', '.npy', img_path)
-        flow_path = re.sub('leftImg8bit', 'pyflow', flow_path)
+        flow_path = re.sub('leftImg8bit.png$', 'flow.npy', img_path)
+        flow_path = re.sub('leftImg8bit', 'flow', flow_path)
         if cont and os.path.isfile(flow_path):
             continue
         flow_dir = flow_path.rpartition("/")[0]
         if not os.path.exists(flow_dir):
             os.makedirs(flow_dir)
 
-        first = np.array(np.swapaxes(np.swapaxes(images[:3, :, :], 0, 1), 1, 2), dtype=float, order='c')
-        second = np.array(np.swapaxes(np.swapaxes(images[3:, :, :], 0, 1), 1, 2), dtype=float, order='c')
+        first = torch.FloatTensor(np.array(images[:3, :, :]).astype(np.float32))
+        second = torch.FloatTensor(np.array(images[3:, :, :]).astype(np.float32))
 
-        s = time.time()
-        u, v, _ = pyflow.coarse2fine_flow(
-            first, second, alpha, ratio, minWidth, nOuterFPIterations, nInnerFPIterations,
-            nSORIterations, colType)
-        e = time.time()
-        print('Time Taken: %.2f seconds for image of size (%d, %d, %d)' % (
-            e - s, first.shape[0], first.shape[1], first.shape[2]))
-        flow = np.concatenate((u[..., None], v[..., None]), axis=2)
+        flow = run.estimate(first, second).permute(1, 2, 0).numpy()
         np.save(flow_path, flow)
 
         if viz:
+            first = np.array(np.swapaxes(np.swapaxes(images[:3, :, :], 0, 1), 1, 2), dtype=float, order='c') * 255
             first_img_path = re.sub('_flow.npy$', '.png', flow_path)
             cv2.imwrite(first_img_path, first)
             hsv = np.zeros(first.shape, dtype=np.uint8)
@@ -76,10 +59,6 @@ if __name__ == "__main__":
         help="Configuration file to use"
     )
     parser.add_argument(
-        '-viz', dest='viz', action='store_true',
-        help='Visualize (i.e. save) output of flow.'
-    )
-    parser.add_argument(
         '-cont', dest='cont', action='store_true',
         help='Continue instead of overwrite'
     )
@@ -93,32 +72,35 @@ if __name__ == "__main__":
     data_loader = get_loader(cfg['data']['dataset'])
     data_path = cfg['data']['path']
 
-    t_loader = data_loader(
+    train_loader = data_loader(
         data_path,
         is_transform=True,
         split=cfg['data']['train_split'],
         img_size=(cfg['data']['img_rows'], cfg['data']['img_cols']),
         n_img_after=1)
 
-    optical_flow(t_loader, args.viz, args.cont)
-
-    v_loader = data_loader(
+    val_loader = data_loader(
         data_path,
         is_transform=True,
         split=cfg['data']['val_split'],
         img_size=(cfg['data']['img_rows'], cfg['data']['img_cols']),
         n_img_after=1)
 
-    optical_flow(v_loader, args.viz, args.cont)
-
-    t_loader = data_loader(
+    test_loader = data_loader(
         data_path,
         is_transform=True,
         split=cfg['data']['test_split'],
         img_size=(cfg['data']['img_rows'], cfg['data']['img_cols']),
         n_img_after=1)
 
-    optical_flow(t_loader, args.viz, args.cont)
+    # this is a hack to avoid changing the pytorch-pwc code
+    os.chdir(os.path.join(os.getcwd(), 'pytorch-pwc'))
+    sys.path[0] = os.getcwd()
+    import run
+
+    optical_flow(train_loader, viz=True, cont=args.cont)
+    optical_flow(val_loader, viz=True, cont=args.cont)
+    optical_flow(test_loader, viz=True, cont=args.cont)
 
 
 

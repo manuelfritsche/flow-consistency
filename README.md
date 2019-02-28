@@ -35,8 +35,11 @@ Some of the dependencies (like `pytorch`) might need to be installed with conda.
 
 ### Optical Flow
 
-Follow the steps in [Pyflow](https://github.com/pathak22/pyflow) to install the optical flow.
-Make sure to save the repository in the main folder.
+We tested two different versions of optical flow:
+ 1. [Pyflow](https://github.com/pathak22/pyflow), which is very easy to use
+ 2. [PWC-Net](https://github.com/sniklaus/pytorch-pwc), which is more accurate.
+ 
+Install the flow you want to use and make sure to save the repository in the main folder.
 
 
 ### Data
@@ -49,25 +52,16 @@ Make sure to save the repository in the main folder.
     - `leftImg8bit_sequence`
 
 
-### Pre-trained Models
-We provide [pre-trained models](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints.tar.gz)
-with and without Flow Consistency Loss (FCL) where different fractions of the annotated data were used for training.
-
-Alternatively, the individual models be downloaded from the following links:
-
-| | | | | |
-|---:|:---:|:---:|:---:|:---:
-| FCN-8s|[100%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_100.pkl)| [50%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_50.pkl)|    [10%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_10.pkl) |    [1%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s_1.pkl)|
-| +FCL|[100%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_100.pkl)| [50%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_50.pkl)| [10%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_10.pkl)| [1%](https://data.vision.ee.ethz.ch/yuhchen/share/project/semi-sup-sseg-video/checkpoints/fcn8s+fcl_1.pkl)
-| | | | | |
-
-
 ## Usage
 
 ### To pre-compute the optical flow:
 
 ```shell
 python calculate_pyflow.py --config [CONFIG] 
+```
+or 
+```shell
+python calculate_pwc.py --config [CONFIG] 
 ```
  * `--config`: The configuration file to use. 
 This file only affects the images that are used. 
