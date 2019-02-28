@@ -4,6 +4,7 @@ data:
     dataset: cityscapes
     train_split: train
     val_split: val
+    test_split: test
     img_rows: 512
     img_cols: 1024
     frac_img: 1.0 # fraction of the labeled train images used
@@ -14,6 +15,7 @@ training:
     train_iters: 300000
     batch_size_lbl: 2
     batch_size_flow: 2
+    iter_start_semi: 0
     val_interval: 1000
     n_workers: 2
     print_interval: 50
@@ -25,12 +27,13 @@ training:
     loss:
         name: 'cross_flow'
         size_average: False
-        flow_weight: 10.0
-        max_shift: 2
+        flow_weight: 0.01
+        max_shift: 1
+        threshold: 0.2
         use_label_and_flow: False
     frequency_weighting: False
     lr_schedule:
     resume:
     reset_optimizer: False
     logdir: 'f100/fcn8s+fcl'
-    tasks: ['input', 'output', 'ground_truth', 'flow'] # for visualize.py
+    tasks: ['input', 'output', 'ground_truth', 'flow', 'fl_weights', 'fl_similarity'] # for visualize.py
