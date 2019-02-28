@@ -78,7 +78,7 @@ def train(cfg, writer, logger):
                                   num_workers=cfg['training']['n_workers'],
                                   shuffle=True)
     if cfg['training']['batch_size_flow'] > 0:
-        trainloader_flow = data.DataLoader(t_loader_lbl,
+        trainloader_flow = data.DataLoader(t_loader_flow,
                                     batch_size=cfg['training']['batch_size_flow'],
                                     num_workers=cfg['training']['n_workers'],
                                     shuffle=True)
@@ -129,8 +129,7 @@ def train(cfg, writer, logger):
             )
             checkpoint = torch.load(cfg['training']['resume'])
             model.load_state_dict(checkpoint["model_state"])
-            if not cfg["training"]["reset_optimizer"]:
-                optimizer.load_state_dict(checkpoint["optimizer_state"])
+            optimizer.load_state_dict(checkpoint["optimizer_state"])
             scheduler.load_state_dict(checkpoint["scheduler_state"])
             start_iter = checkpoint["epoch"]
             logger.info(
@@ -150,35 +149,19 @@ def train(cfg, writer, logger):
     flag = True
 
     while i <= cfg['training']['train_iters'] and flag:
-        for (t_images, t_labels, t_flows) in trainloader_lbl:
-            if cfg['training']['batch_size_flow'] > 0:
-                try:
-                    (f_images, f_labels, f_flows) = next(iterator_flow)
-                except StopIteration:
-                    iterator_flow = iter(trainloader_flow)
-                    (f_images, f_labels, f_flows) = next(iterator_flow)
-
-                images = torch.cat((t_images, f_images), 0)
-                labels = torch.cat((t_labels, f_labels), 0)
-                flows = torch.cat((t_flows, f_flows), 0)
-            else:
-                images = t_images
-                labels = t_labels
-                flows = t_flows
-
+        for (images, labels, _) in trainloader_lbl:
             i += 1
             start_ts = time.time()
             scheduler.step()
             model.train()
             images = images.to(device)
             labels = labels.to(device)
-            flows = flows.to(device)
 
             optimizer.zero_grad()
             outputs = model(images)
 
             if cfg['training']['loss']['name'] == 'cross_flow':
-                loss = loss_fn(input=outputs, target=labels, flow=flows)
+                loss = loss_fn(input=outputs, target=labels, flow=None)
             else:
                 if cfg['training']['frequency_weighting']:
                     loss = loss_fn(input=outputs, target=labels, weight=weight_labels)
@@ -187,6 +170,22 @@ def train(cfg, writer, logger):
 
             loss.backward()
             optimizer.step()
+
+            #################### Flow Consistency Update ##########################
+            if cfg['training']['batch_size_flow'] > 0 and i >= cfg['training']['iter_start_semi']:
+                try:
+                    (images, _, flows) = next(iterator_flow)
+                except StopIteration:
+                    iterator_flow = iter(trainloader_flow)
+                    (images, _, flows) = next(iterator_flow)
+                images = images.to(device)
+                flows = flows.to(device)
+                optimizer.zero_grad()
+                outputs = model(images)
+                loss = loss_fn(input=outputs, target=None, flow=flows)
+                loss.backward()
+                optimizer.step()
+            #################### Flow Consistency Update End ######################
 
             time_meter.update(time.time() - start_ts)
 
@@ -197,7 +196,7 @@ def train(cfg, writer, logger):
                                            loss.item(),
                                            time_meter.avg / (cfg['training']['batch_size_lbl'] + cfg['training']['batch_size_flow']))
 
-                print(print_str)
+                #print(print_str)
                 logger.info(print_str)
                 writer.add_scalar('loss/train_loss', loss.item(), i + 1)
                 time_meter.reset()
@@ -224,7 +223,7 @@ def train(cfg, writer, logger):
 
                 score, class_iou = running_metrics_val.get_scores()
                 for k, v in score.items():
-                    print(k, v)
+                    #print(k, v)
                     logger.info('{}: {}'.format(k, v))
                     writer.add_scalar('val_metrics/{}'.format(k), v, i + 1)
 
@@ -271,8 +270,7 @@ if __name__ == "__main__":
         cfg = yaml.load(fp)
 
     index = 0
-    # logdir = os.path.join('runs', os.path.basename(args.config)[:-4], cfg["training"]["logdir"] + "_" + str(index))
-    logdir = os.path.join('runs', cfg["training"]["logdir"] + "_" + str(index))
+    logdir = os.path.join('runs', cfg["training"]["logdir"] + "/" + str(index))
     while True:
         index += 1
         if os.path.exists(logdir):
