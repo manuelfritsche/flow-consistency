@@ -4,9 +4,70 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+def cross_flow(input, target, flow=None, flow_weight=1.0, max_shift=1, threshold=0.2, use_label_and_flow=False, weight=None,
+               size_average=True):
+    if target is None:
+        return flow_consistency(input, flow, flow_weight, max_shift, threshold, size_average)
+    else:
+        return cross_entropy2d(input, target, size_average=size_average)
+
+
+def flow_consistency_v2(input, flow, flow_weight=1.0, max_shift=1, threshold=0.5, size_average=True):
+    flow_weight = float(flow_weight)
+    input = F.softmax(input, dim=1).permute(1, 0, 2, 3)
+    flow = flow.permute(1, 0, 2, 3)
+    assert np.shape(flow)[0] == 2
+    f_dist = torch.zeros_like(input)
+    for s_height in range(-max_shift, max_shift+1):
+        for s_width in range(-max_shift, max_shift+1):
+            if s_height == 0 and s_width == 0:
+                continue
+            shifted_input, shifted_flow = shift(input.detach(), flow, s_height, s_width)
+            norm = (threshold - torch.norm(flow - shifted_flow, dim=0, keepdim=True)) / threshold
+            ignore = torch.norm(shifted_flow, dim=0, keepdim=True) == 0
+            norm[ignore] = 0
+            norm[norm <= 0] = 0
+            s_level = max(abs(s_height), abs(s_width))
+            n_shifts = 8 * s_level
+            f_dist += norm * shifted_input / n_shifts
+    f_ce = -torch.sum(f_dist * torch.log(input + 1.0e-10), dim=0, keepdim=True)
+    if size_average:
+        f_loss = torch.sum(f_ce) / f_ce.numel()
+    else:
+        f_loss = torch.sum(f_ce)
+
+    return flow_weight * f_loss
+
+
+def flow_consistency(input, flow, flow_weight=1.0, max_shift=1, threshold=0.2, size_average=True):
+    flow_weight = float(flow_weight)
+    input = F.softmax(input, dim=1).permute(1, 0, 2, 3)
+    flow = flow.permute(1, 0, 2, 3)
+    assert np.shape(flow)[0] == 2
+    f_dist = torch.zeros_like(input)
+    for s_height in range(-max_shift, max_shift+1):
+        for s_width in range(-max_shift, max_shift+1):
+            if s_height == 0 and s_width == 0:
+                continue
+            shifted_input, shifted_flow = shift(input.detach(), flow, s_height, s_width)
+            norm = torch.norm(flow - shifted_flow, dim=0, keepdim=True)
+            ignore = torch.norm(shifted_flow, dim=0, keepdim=True) == 0
+            norm[ignore] = 0
+            norm[norm <= threshold] = 0
+            s_level = max(abs(s_height), abs(s_width))
+            n_shifts = 8 * s_level
+            f_dist += norm * shifted_input / n_shifts
+    f_ce = torch.sum(f_dist * torch.log(input + 1.0e-10), dim=0, keepdim=True)
+    if size_average:
+        f_loss = torch.sum(f_ce) / f_ce.numel()
+    else:
+        f_loss = torch.sum(f_ce)
+
+    return flow_weight * f_loss
+
 # this loss function uses cross entropy loss if labels are available and otherwise uses flow consistency loss
-def cross_flow(input, target, flow=None, flow_weight=1.0, max_shift=1, use_label_and_flow=False, weight=None,
-               size_average=False):
+def cross_flow_old(input, target, flow=None, flow_weight=1.0, max_shift=1, threshold=0.2, use_label_and_flow=False, weight=None,
+               size_average=True):
     flow_weight = float(flow_weight)
     # split the batch into the flow loss and the cross entropy loss part
     f_batch = torch.zeros(target.size()[0], dtype=torch.uint8)
@@ -40,8 +101,9 @@ def cross_flow(input, target, flow=None, flow_weight=1.0, max_shift=1, use_label
                 norm = torch.norm(f_flow - shifted_flow, dim=0, keepdim=True)
                 ignore = torch.norm(shifted_flow, dim=0, keepdim=True) == 0
                 norm[ignore] = 0
+                norm[norm <= threshold] = 0
                 s_level = max(abs(s_height), abs(s_width))
-                n_shifts = (2 * s_level + 1) * 4 - 4
+                n_shifts = 8 * s_level
                 f_dist += norm * shifted_input / n_shifts
         f_ce = torch.sum(f_dist * torch.log(f_input + 1.0e-10), dim=0, keepdim=True)
         if size_average:
